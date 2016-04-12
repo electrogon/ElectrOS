@@ -1,4 +1,4 @@
-#Welware, 2016
+#ElectrOS, 2016
 #run in Python 2 not 3
 
 import ImageTk
