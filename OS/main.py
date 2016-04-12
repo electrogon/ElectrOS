@@ -17,16 +17,26 @@ tk.overrideredirect(1)
 #show loading screen
 class loading():
     def start(self):
-        pass
+        canvas.config(bg="white")
+        logo = Image.open("icons/logo.png")
+        logo = logo.resize((w/5, w/5), Image.ANTIALIAS)
+        logo1 = ImageTk.PhotoImage(logo)
+
+        canvas.create_image((w/2)-((w/5)/2), (h/2)-((w/5)/2), anchor=NW, image=logo1)
+        tk.update()
+        
+
+ldg = loading()
+ldg.start()
 
 
 #read all pickle files
 
 image = Image.open("backgrounds/default.png")
-image = image.resize((w, h), Image.ANTIALIAS) #The (250, 250) is (height, width)
+image = image.resize((w, h), Image.ANTIALIAS)
 img = ImageTk.PhotoImage(image)
 
-canvas.create_image(0, 0, image=img, anchor=NW)
+#canvas.create_image(0, 0, image=img, anchor=NW)
 
 def thread1():
     for x in range(0, 100):
