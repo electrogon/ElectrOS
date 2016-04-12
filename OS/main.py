@@ -1,3 +1,6 @@
+#Welware, 2016
+#run in Python 2 not 3
+
 import ImageTk
 from Tkinter import *
 from PIL import Image
