@@ -30,15 +30,20 @@ class keyBoard():
         #empty array to store textboxes
     def onTextClick(self, event):
         print("clicked")
-        for x in self.boxes:
-            currentCoords = canvas.coords(x)
+        # called when screen is clicked
+        for box in self.boxes:
+            #check every textbox
+            currentCoords = canvas.coords(box)
+            # get the coordinates of the current textbox
             if event.x >= currentCoords[0] and event.y >= currentCoords[1] and event.x <= currentCoords[2] and event.y <= currentCoords[3]:
+                #if the current textbox is clicked
                 print("done")
         
                                   
     def textBox(self, x, y, width, height):
-                                  
+        #create a text box
         self.boxes.append(canvas.create_rectangle(x, y, x+width, y+height, fill="white"))
+        #add it to text box array
         
         
         
@@ -50,8 +55,22 @@ class loading():
         logo = logo.resize((w/5, w/5), Image.ANTIALIAS)
         logo1 = ImageTk.PhotoImage(logo)
 
-        canvas.create_image((w/2)-((w/5)/2), (h/2)-((w/5)/2), anchor=NW, image=logo1)
+        imglogo = canvas.create_image((w/2)-((w/5)/2), (h/2)-((w/5)/2), anchor=NW, image=logo1)
+        #img2logo = canvas.create_image(0, 0, anchor=NW, image=logo1)
         tk.update()
+
+class firstTime():
+    def start(self):
+        image = Image.open("backgrounds/default.png")
+        image = image.resize((w, h), Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(image)
+
+
+        canvas.create_image(0, 0, image=img, anchor=NW)
+        #add the background image
+
+        keys.textBox((w/2)-(w/20), (h/2)-(w/100), (w/10), w/50)
+        #create a new textbox
         
 class readData():
     def read(self):
@@ -61,45 +80,27 @@ class readData():
             
             homeInfo = {"background":"default.png"}
 
-ldg = loading()
-#store the loading class into a variable
-
-keys = keyBoard()
-#store the keyboard class into a variable
-
-keys.textBox(50, 50, 100, 30)
-#create a new textbox
-
-canvas.bind_all('<Button-1>', keys.onTextClick)
-#detect clicks and call the onTextclick function when something is pressed
-
-ldg.start()
-#start the loading screen
-
-
-
-image = Image.open("backgrounds/default.png")
-image = image.resize((w, h), Image.ANTIALIAS)
-img = ImageTk.PhotoImage(image)
-
-#add the background image
-
-#canvas.create_image(0, 0, image=img, anchor=NW)
-
 def thread1():
-    for x in range(0, 100):
-        canvas.create_rectangle(x, 0, x+50, 50)
-        tk.update()
-        time.sleep(0.01)
-def thread2():
-    for y in range(0, 100):
-        canvas.create_rectangle(y, 200, y+50, 250)
-        tk.update()
-        time.sleep(0.01)
-
-    #threading test (not important to be deleted)
+    canvas.bind_all('<Button-1>', keys.onTextClick)
         
 thread.start_new_thread( thread1, () )
-thread.start_new_thread( thread2, () )
+#start a seperate thread to detect clicks
 
-tk.update()
+
+ldg = loading()
+#store the loading class into a variable
+keys = keyBoard()
+#store the keyboard class into a variable
+firsttime1 = firstTime()
+
+
+ldg.start()
+#start the start screen
+time.sleep(3)
+
+firsttime1.start()
+
+tk.mainloop()
+time.sleep(10)
+
+
