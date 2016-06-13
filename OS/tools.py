@@ -5,12 +5,15 @@ import ImageTk
 from Tkinter import *
 from PIL import Image
 import pickle
-import thread
+
 import time
 import tkFont
 import random
 
+
 tk = Tk()
+global w
+global h
 
 w = tk.winfo_screenwidth()
 h = tk.winfo_screenheight()
@@ -54,6 +57,7 @@ class keyBoard():
             #check every textbox
             self.currentCoords = canvas.coords(box)
             # get the coordinates of the current textbox
+            print(self.boxes)
            
             if event.x >= self.currentCoords[0] and event.y >= self.currentCoords[1] and event.x <= self.currentCoords[2] and event.y <= self.currentCoords[3]:
                 # if the mouseclick was inside a textbox
@@ -197,7 +201,7 @@ class Buttons():
         
     def button(self, x, y, width, height, bcolor, fcolor, borderWidth, text, command):
         self.buttonsList.append(canvas.create_rectangle(x, y, x+width, y+height, fill=bcolor, outline=fcolor, width=borderWidth))
-        canvas.create_text(x+(width/2), y+(height/2), text=text, font=("Helvetica", height/3, "bold"))
+        canvas.create_text(int(x+(width/2)), int(y+(height/2)), text=text, font=("Helvetica", height/3, "bold"))
         self.hoverColor.append(fcolor)
         self.normalColor.append(bcolor)
         self.commands.append(command)
@@ -225,25 +229,92 @@ class Buttons():
         self.xMouse, self.yMouse = event.x, event.y
         x =0
         for allButtons in self.buttonsList:
-            
-            self.buttonCoords = canvas.coords(allButtons)
             try:
-                if self.xMouse >= self.buttonCoords[0] and self.yMouse >= self.buttonCoords[1] and self.xMouse <= self.buttonCoords[2] and self.yMouse <= self.buttonCoords[3]:
+                self.buttonCoords = canvas.coords(allButtons)
+                try:
+                    if self.xMouse >= self.buttonCoords[0] and self.yMouse >= self.buttonCoords[1] and self.xMouse <= self.buttonCoords[2] and self.yMouse <= self.buttonCoords[3]:
                 
-                    canvas.itemconfig(allButtons, fill=self.hoverColor[self.buttonsList.index(allButtons)])
-                    tk.config(cursor="hand2")
-                else:
-                    canvas.itemconfig(allButtons, fill=self.normalColor[self.buttonsList.index(allButtons)])
-                    tk.config(cursor="")
+                        canvas.itemconfig(allButtons, fill=self.hoverColor[self.buttonsList.index(allButtons)])
+                        tk.config(cursor="hand2")
+                    else:
+                        canvas.itemconfig(allButtons, fill=self.normalColor[self.buttonsList.index(allButtons)])
+                        tk.config(cursor="")
+                except:
+                    self.buttonsList.remove(self.buttonsList[x])
+                    self.hoverColor.remove(self.hoverColor[x])
+                    self.normalColor.remove(self.normalColor[x])
+                    self.commands.remove(self.commands[x])
+                x=x+1
             except:
-                self.buttonsList.remove(self.buttonsList[x])
-                self.hoverColor.remove(self.hoverColor[x])
-                self.normalColor.remove(self.normalColor[x])
-                self.commands.remove(self.commands[x])
-            x=x+1
+                pass
                
         
 going =  True
+b= Buttons()
+
+class Notify():
+    def __init__(self):
+        self.messages = []
+        self.messageTitle = []
+        self.messageText = []
+        self.messageImg = []
+    def Error(self, messageP):
+        if len(self.messages) == 0:
+        
+            self.messages.append(canvas.create_rectangle(0-(w/3), (h-50), 0, h-130, fill="#1a1a1a", outline="#1a1a1a"))
+
+            self.messageTitle.append(canvas.create_text(0-(w/3)+10, h-110, text="Error", font=("Helvetica", int(len(messageP)/2)), anchor=W, fill="white"))
+            self.messageText.append(canvas.create_text(0-(w/3)+10, h-75, text=messageP, font=("Helvetica", int(len(messageP)/2.5)), anchor=W, fill="grey"))
+
+        
+
+            messageImg = Image.open("system/Error.png")
+            messageImg = messageImg.resize((40, 40), Image.ANTIALIAS)
+            messageImg = ImageTk.PhotoImage(messageImg)
+            self.messageImg.append(canvas.create_image(0-70, h-110, anchor=NW, image=messageImg))
+
+            currentBoxIndex = len(self.messages)-1
+        
+            pos1 = 0
+            while True:
+            
+                currentMessagePos= canvas.coords(self.messages[currentBoxIndex])
+                if currentMessagePos[0] < -5:
+                    time.sleep(0.01)
+                    canvas.move(self.messages[currentBoxIndex], 10, 0)
+                    canvas.move(self.messageText[currentBoxIndex], 10, 0)
+                    canvas.move(self.messageTitle[currentBoxIndex], 10, 0)
+                    canvas.move(self.messageImg[currentBoxIndex], 10, 0)
+                    pos1=pos1+5
+                    tk.update()
+                
+                else:
+                    break
+
+            time.sleep(5)
+            while True:
+            
+                currentMessagePos= canvas.coords(self.messages[currentBoxIndex])
+                if currentMessagePos[2] > -5:
+                    time.sleep(0.01)
+                    canvas.move(self.messages[currentBoxIndex], -10, 0)
+                    canvas.move(self.messageText[currentBoxIndex], -10, 0)
+                    canvas.move(self.messageTitle[currentBoxIndex], -10, 0)
+                    canvas.move(self.messageImg[currentBoxIndex],- 10, 0)
+                    pos1=pos1+5
+                    tk.update()
+                
+                else:
+                    break
+            self.messages = []
+            self.messageText = []
+            self.messageTitle = []
+            self.messageImg = []
+                                 
+        
+                
+        
+
 class loading():
     def __init__(self):
         self.going = True
@@ -279,11 +350,11 @@ class loading():
             gColor = gColor+(n2C*n2)
             bColor = bColor+(n3C*n3)
 
-            if rColor >= 250:
+            if rColor >= 230:
                 n1C = -1
-            if gColor >= 250:
+            if gColor >= 230:
                 n2C = -1
-            if bColor >= 250:
+            if bColor >= 230:
                 n3C = -1
                 
             if rColor <= 30:
@@ -304,7 +375,7 @@ class loading():
         global going
         going= True
         ldg = loading()
-        self.fullLoading = thread.start_new_thread( ldg.fullScreenStart, (text,) )
+        ldg.fullScreenStart(text)
         
         #loading screen must be in a thread so that other actions can take place at the same time
     def fullScreenStop(self):

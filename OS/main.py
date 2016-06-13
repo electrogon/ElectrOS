@@ -1,30 +1,31 @@
 #Welware, 2016
 #run in Python 2 not 3
 
+#import all the modules
 import ImageTk
 from Tkinter import *
 from PIL import Image
 import pickle
-import thread
+
 import time
 import tkFont
 import random
-#import modules
+import urllib
+import hashlib
+import zipfile
+
+import thread
 
 from tools import *
+import sudo
 
 
+version = "1.0"
 
 class firstTime():
     def start(self):
         
-        image = Image.open("backgrounds/default.png")
-        image = image.resize((w, h), Image.ANTIALIAS)
-        img = ImageTk.PhotoImage(image)
-
-
-        canvas.create_image(0, 0, image=img, anchor=NW)
-        #add the background image
+        
 
         canvas.configure(bg="darkgreen")
 
@@ -36,40 +37,45 @@ class firstTime():
         keys.textBox(w/20, (h/100)*35, (w/5), h/25, "Enter a Password", 1)
         #create a new textbox
 
-        canvas.create_text(w/20, (h/100)*70, text="I don't want to create an account", anchor=NW, font=("Helvetica", 12, "underline"), fill="white")
 
         b.button(w-400, h-100, 120, 40, "darkgreen", "white", 2, "Next", firsttime1.screen2)
+        
+        
         
         #allDatas = keys.getAll()
     def screen2(self):
         allInfo = keys.getAll()
+        def success():
         
-        keys.deleteAll()
-        b.deleteAll()
-        canvas.delete("all")
-        keys.endCursor()
-        
-        ldg.fullScreen("Storing Data")
-        #store username and password
-        userData = {
-            0: {
-                "username": allInfo[0],
-                "password": allInfo[1],
-                "bg": "default.png"
-            }
-        }
-        
-        time.sleep(2)
-        ldg.fullScreenStop()
-        time.sleep(0.1)
-        ldg.fullScreen("Downloading Files")
-        
-        
+            keys.deleteAll()
+            b.deleteAll()
+            canvas.delete("all")
+            keys.endCursor()
+            sudo1 = sudo.sudoUser()
+            global done
+            done = False
             
-            
-        
-        
 
+            thread.start_new_thread(sudo1.addUser, (allInfo[0], allInfo[1], ldg, version, notify))
+        
+            ldg.fullScreen("Configuring Data")
+        
+       
+
+        try:
+            h= allInfo[0]
+            h=allInfo[1]
+            if allInfo[0] == "" or allInfo[1] == "":
+                notify.Error("No Username or Password was Entered")
+                raise SyntaxError("E")
+            success()
+            
+        except:
+           
+            notify.Error("Username or Password was left blank")
+
+            
+            
 class clickDistribute():
     def distribute(self, event):
         
@@ -83,26 +89,23 @@ class readData():
         except:
             return False
 
-
-def thread1():
-    canvas.bind_all('<Button-1>', distributor.distribute)
-    #canvas.bind_all('<Button-1>', b.click)
-    canvas.bind_all("<KeyPress>", keys.onTextType)
-    canvas.bind_all('<Motion>', b.checkHit)
-        
-thread.start_new_thread( thread1, () )
-#start a seperate thread to detect clicks
-
-
 ldg = loading()
 #store the loading class into a variable
 keys = keyBoard()
 #store the keyboard class into a variable
-distributor = clickDistribute()
+
 
 readdata = readData()
 
+notify = Notify()
+
 b = Buttons()
+
+distributor = clickDistribute()
+canvas.bind_all('<Button-1>', distributor.distribute)
+canvas.bind_all("<KeyPress>", keys.onTextType)
+canvas.bind_all('<Motion>', b.checkHit)
+
 
 
 firsttime1 = firstTime()
@@ -118,9 +121,7 @@ else:
 
     firsttime1.start()
 
-
-
 tk.mainloop()
-time.sleep(10)
+
 
 
