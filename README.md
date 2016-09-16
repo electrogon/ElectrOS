@@ -20,7 +20,7 @@ ElectrOS can be installed using the following command:
 
 git clone https://github.com/welware/ElectrOS.git
 
-to run ElectrOS run teh main.py file located in the main directory
+to run ElectrOS run the main.py file located in the main directory
 
 NOTE: After ELectrOS 1.0 beta will be released, Raspberry Pi image files with ElectrOS pre-installed will be available
 
