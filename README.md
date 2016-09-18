@@ -17,11 +17,13 @@ ElectrOS is open source desktop overlay designed specifically for use with touch
 HOW CAN I GET ELECTROS?
 
 <b>Raspberry Pi</b><br>
+<code>
 git clone https://github.com/welware/ElectrOS.git
 sudo apt-get install python-imaging
 sudo apt-get install python-imaging-tk
 cd ElectrOS/scripts
 sudo python3 main.py
+</code>
 
 to run ElectrOS run the main.py file located in the main directory
 
