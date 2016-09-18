@@ -4,7 +4,7 @@ ElectrOS 1.x release notes
 
 IMPORTANT: ElectrOS is still in beta is not meant for use yet
 
-planned final release date for ElectrOS 1.0 beta: August-October 2016
+planned final release date for ElectrOS 1.0 beta: October 5th, 2016
 
 
 Raspberry Pi is a trademark of the Raspberry Pi Foundation
@@ -16,9 +16,12 @@ ElectrOS is open source desktop overlay designed specifically for use with touch
 
 HOW CAN I GET ELECTROS?
 
-ElectrOS can be installed using the following command:
-
+<b>Raspberry Pi</b>
 git clone https://github.com/welware/ElectrOS.git
+sudo apt-get install python-imaging
+sudo apt-get install python-imaging-tk
+cd ElectrOS/scripts
+sudo python3 main.py
 
 to run ElectrOS run the main.py file located in the main directory
 
