@@ -1,3 +1,4 @@
+from subprocess import call
 
 class Dialogs():
     def __init__(self, canvas, width, height, readWrite, multiUseIcons, screenInfo):
@@ -103,10 +104,6 @@ class Home():
         self.Dialogs = Dialogs(self.canvas, self.screenWidth, self.screenHeight, self.readWrite, self.multiUseIcons, self.screenInfo)
 
         self.icons = []
-        self.ovIms =[]
-        self.ovTk = []
-        self.ovs = []
-        self.icoIms = []
 
         self.canvas.configure(bg=self.screenInfo["bg"])
         self.createTaskBar()
@@ -117,10 +114,10 @@ class Home():
         if self.readWrite.readP(self.appsFile) == False:
             self.appInfo = {
                 "apps":[
-                    {"type":"launcher", "title":"Camera", "iconSrc":"../apps/camera/assets/img/iconxxl.png", "exeComm":"echo 'app doesn't exist yet'", "size":[1, 1]},
+                    {"type":"launcher", "title":"Camera", "iconSrc":"../apps/camera/assets/img/iconxxl.png", "exeComm":["python", "../apps/main.py"], "size":[1, 1]},
                     {"type":"launcher", "title":"Photos", "iconSrc":"../apps/photos/assets/img/iconxxl.png", "exeComm":"", "size":[1, 1]},
                     {"type":"launcher", "title":"Settings", "iconSrc":"../apps/settings/assets/img/iconxxl.png", "exeComm":"", "size":[1, 1]},
-                    {"type":"launcher", "title":"Calculator", "iconSrc":"../apps/calculator/assets/img/iconxxl.png", "exeComm":"", "size":[1, 1]},
+                    {"type":"launcher", "title":"Calculator", "iconSrc":"../apps/calculator/assets/img/iconxxl.png", "exeComm":["python3", "../apps/calculator/main.py"], "size":[1, 1]},
                     {"type":"frame", "fillerCommand":None, "size":[3, 1]}
                 ],
                 "appBG":"#4caf50",
@@ -134,6 +131,7 @@ class Home():
                 "window-secondary":"#212121",
                 "outlines":"#BBDEFB",
                 "button-inside":"#E3F2Fd",
+                "button-click":"#689f38",
                 "button-text":"#8BC34A",
                 "text-color":"#f5f5f5",
                 "bg":"#1a1a1a",
@@ -186,6 +184,34 @@ class Home():
         self.Dialogs.optionDialog(dialogInfo)
     def openApp(self, command):
         print("clicked @%s" %command)
+
+    def activateIcon(self, app):
+        print("%s is now active" %app)
+        self.canvas.itemconfig(self.icons[app]["circle"], fill=self.screenInfo["button-click"])
+        self.tk.update()
+        self.time.sleep(0.1)
+        
+        appSrc = "../apps/"+self.icons[app]["txt-title"]
+        
+        call(self.appInfo["apps"][app]["exeComm"])
+
+    def moveIcon(self, event):
+        count=0
+        for currApp in self.icons:
+            if currApp["active"]:
+                print(event.x, currApp["central-start"][0])
+                print(event.y, currApp["central-start"][1])
+                diffx = event.x-currApp["central-start"][0] #x difference 
+                diffy = event.y-currApp["central-start"][1] #y difference
+
+                self.icons[count]["central-start"] = [event.x, event.y]
+
+                print("moveInf", diffx, diffy)
+
+                self.canvas.move(currApp["circle"], diffx, diffy)
+                count+=1
+
+            
         
     def createIcons(self):
         appX = 0
@@ -200,32 +226,46 @@ class Home():
             width = app["size"][0]*self.appActualSize
             height = app["size"][1]*self.appActualSize
 
+            appArr = {} #map to store information about each app
+            
             if app["type"] == "launcher":
-                currOv = self.canvas.create_oval(self.groupMargin+appX*(width+self.appMargin), self.screenHeight+self.topMargin+appY*(height+self.appMargin), self.groupMargin+appX*(width+self.appMargin)+width, self.screenHeight+self.topMargin+appY*(height+self.appMargin)+height, width=0, fill=appBG, outline=appBG)
-
+                appArr["x-coord"] = self.groupMargin+appX*(width+self.appMargin)
+                appArr["y-coord"] = self.screenHeight+self.topMargin+appY*(height+self.appMargin)
+                appArr["color"] = appBG
+                
+                currOv = self.canvas.create_oval(appArr["x-coord"], appArr["y-coord"], self.groupMargin+appX*(width+self.appMargin)+width, self.screenHeight+self.topMargin+appY*(height+self.appMargin)+height, width=0, fill=appArr["color"], outline=appArr["color"])
+                appArr["circle"] = currOv
+                
                 ovIm = self.readWrite.imageTk(app["iconSrc"], width/2, height/2)
-                self.ovIms.append(ovIm)
+                appArr["imagetk-image"] = ovIm
 
-                
                 imTk = self.canvas.create_image(self.groupMargin+appX*(width+self.appMargin)+width/2, self.screenHeight+self.topMargin+appY*(height+self.appMargin)+height/2-height/10, image=ovIm)                               
-                self.ovTk.append(imTk)
+                appArr["image"] = imTk
                 
-                icotxt = self.canvas.create_text(self.groupMargin+appX*(width+self.appMargin)+width/2, self.screenHeight+self.topMargin+appY*(height+self.appMargin)+height/1.2-height/10, text=app["title"], font=("Roboto", int(width/10)), fill="white")
-                    
-                self.icons.append(currOv)
+                icoTxt = self.canvas.create_text(self.groupMargin+appX*(width+self.appMargin)+width/2, self.screenHeight+self.topMargin+appY*(height+self.appMargin)+height/1.2-height/10, text=app["title"], font=("Roboto", int(width/10)), fill="white")
+                appArr["title"] = icoTxt
+                appArr["txt-title"] = app["title"]
+
+                appArr["active"] = False
+                appArr["active-margin"] = 0
+
+                appArr["central-start"] = [appArr["x-coord"], appArr["y-coord"]]
+                
                 appX+=1
                 print(app)
 
-                self.canvas.tag_bind(self.icons[len(self.icons)-1], '<ButtonPress-1>', lambda event, app=app: self.openApp(app["exeComm"]))
+                self.canvas.tag_bind(appArr["circle"], '<ButtonPress-1>', lambda event, app=len(self.icons): self.activateIcon(app))
+                
                 
                 count=0
                 speed=30
                 while count < self.screenHeight:
                     self.canvas.move(currOv, 0, -speed)
                     self.canvas.move(imTk, 0, -speed)
-                    self.canvas.move(icotxt, 0, -speed)
+                    self.canvas.move(icoTxt, 0, -speed)
                     count += speed
                     self.tk.update()
+                self.icons.append(appArr)
 
                 
             if appX*(width+self.appMargin) >= self.maxSize:
@@ -237,4 +277,5 @@ class Home():
         totTime = self.time.time()-time1
 
         print("App Load Time %s" % totTime)
+        self.canvas.bind_all("<B1-Motion>", self.moveIcon)
                 

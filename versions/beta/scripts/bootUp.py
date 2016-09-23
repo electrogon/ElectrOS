@@ -7,5 +7,5 @@ class BootUp():
         print("test")
         self.run()
     def run(self):
-        time.sleep(10)
+        time.sleep(1)
         self.queue.put("cleanup")
