@@ -1,6 +1,5 @@
 # ElectrOS, 2017
 
-<img src="http://ettech.byethost24.com/assets/logo/ETlogo.png"/>
 
 ElectrOS 0.0.x release notes
 
